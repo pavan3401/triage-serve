@@ -1,0 +1,202 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-prefill
+  labels:
+    app: vllm-prefill
+    phase: prefill
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm-prefill
+  template:
+    metadata:
+      labels:
+        app: vllm-prefill
+        phase: prefill
+        inference.networking.x-k8s.io/inferencepool: prefill
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      schedulerName: hami-scheduler
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:v0.11.0
+          args:
+            - --model
+            - Qwen/Qwen2.5-3B-Instruct
+            - --served-model-name
+            - Qwen/Qwen2.5-3B-Instruct
+            - text
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8000"
+            - --enable-prefix-caching
+            - --scheduling-policy
+            - priority
+            - --max-model-len
+            - "2048"
+            - --gpu-memory-utilization
+            - "0.50"
+            - --tensor-parallel-size
+            - "1"
+            - --pipeline-parallel-size
+            - "1"
+            - --data-parallel-size
+            - "1"
+          env:
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token
+                  key: token
+                  optional: true
+          ports:
+            - containerPort: 8000
+              hostPort: 8000
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+              nvidia.com/gpumem: "16384"
+              nvidia.com/gpucores: "55"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-decode
+  labels:
+    app: vllm-decode
+    phase: decode
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm-decode
+  template:
+    metadata:
+      labels:
+        app: vllm-decode
+        phase: decode
+        inference.networking.x-k8s.io/inferencepool: decode
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      schedulerName: hami-scheduler
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:v0.11.0
+          args:
+            - --model
+            - Qwen/Qwen2.5-VL-3B-Instruct
+            - --served-model-name
+            - Qwen/Qwen2.5-VL-3B-Instruct
+            - vision
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8000"
+            - --enable-prefix-caching
+            - --scheduling-policy
+            - priority
+            - --max-model-len
+            - "2048"
+            - --gpu-memory-utilization
+            - "0.80"
+            - --tensor-parallel-size
+            - "1"
+            - --pipeline-parallel-size
+            - "1"
+            - --data-parallel-size
+            - "1"
+          env:
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token
+                  key: token
+                  optional: true
+          ports:
+            - containerPort: 8000
+              hostPort: 8001
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+              nvidia.com/gpumem: "16384"
+              nvidia.com/gpucores: "35"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mooncake-store
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mooncake-store
+  template:
+    metadata:
+      labels:
+        app: mooncake-store
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "50051"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: store
+          image: python:3.12-slim
+          workingDir: /lab
+          command: ["python", "-m", "router.mooncake"]
+          ports:
+            - containerPort: 50051
+              hostPort: 50051
+          volumeMounts:
+            - name: lab
+              mountPath: /lab
+      volumes:
+        - name: lab
+          hostPath:
+            path: /home/ubuntu/serving
+            type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-prefill
+spec:
+  selector:
+    app: vllm-prefill
+  ports:
+    - port: 8000
+      nodePort: 30800
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-decode
+spec:
+  selector:
+    app: vllm-decode
+  ports:
+    - port: 8000
+      nodePort: 30801
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mooncake-store
+spec:
+  selector:
+    app: mooncake-store
+  ports:
+    - port: 50051
+      nodePort: 30551
+  type: NodePort

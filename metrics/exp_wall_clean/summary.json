@@ -1,0 +1,66 @@
+[
+  {
+    "concurrency": 32,
+    "wall_s": 48.6,
+    "steps_ok": 1428,
+    "incidents_done": 477,
+    "incidents_errored": 0,
+    "step_latency_p50_s": 0.843,
+    "step_latency_p95_s": 1.854,
+    "step_latency_p99_s": 2.606,
+    "error_kinds": {},
+    "gw_requests_delta": 1409.0,
+    "gw_shed_delta": 0.0,
+    "preemptions_delta": 0.0,
+    "gen_tokens_per_s": 1357.9,
+    "prefix_hit_rate": 0.847,
+    "kv_usage_peak": 0.23778287963266642,
+    "kv_usage_mean": 0.125,
+    "running_peak": 26.0,
+    "waiting_peak": 0.0
+  },
+  {
+    "concurrency": 64,
+    "wall_s": 49.3,
+    "steps_ok": 1411,
+    "incidents_done": 469,
+    "incidents_errored": 2,
+    "step_latency_p50_s": 1.969,
+    "step_latency_p95_s": 2.978,
+    "step_latency_p99_s": 3.627,
+    "error_kinds": {
+      "gateway 400: {\"error\": {\"type\": \"prompt_": 2
+    },
+    "gw_requests_delta": 1346.0,
+    "gw_shed_delta": 0.0,
+    "preemptions_delta": 0.0,
+    "gen_tokens_per_s": 1401.4,
+    "prefix_hit_rate": 0.848,
+    "kv_usage_peak": 0.29813053460150873,
+    "kv_usage_mean": 0.128,
+    "running_peak": 41.0,
+    "waiting_peak": 0.0
+  },
+  {
+    "concurrency": 128,
+    "wall_s": 54.1,
+    "steps_ok": 1536,
+    "incidents_done": 513,
+    "incidents_errored": 16,
+    "step_latency_p50_s": 4.104,
+    "step_latency_p95_s": 5.105,
+    "step_latency_p99_s": 5.827,
+    "error_kinds": {
+      "gateway unreachable: Remote end closed c": 16
+    },
+    "gw_requests_delta": 1424.0,
+    "gw_shed_delta": 0.0,
+    "preemptions_delta": 0.0,
+    "gen_tokens_per_s": 1362.6,
+    "prefix_hit_rate": 0.845,
+    "kv_usage_peak": 0.321416857986225,
+    "kv_usage_mean": 0.121,
+    "running_peak": 39.0,
+    "waiting_peak": 0.0
+  }
+]

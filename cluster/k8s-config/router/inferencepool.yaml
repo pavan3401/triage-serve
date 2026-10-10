@@ -1,0 +1,31 @@
+apiVersion: inference.networking.k8s.io/v1
+kind: InferencePool
+metadata:
+  name: prefill-pool
+spec:
+  targetPorts:
+    - number: 8000
+  selector:
+    matchLabels:
+      app: vllm-prefill
+  endpointPickerRef:
+    name: epp-prefill
+    kind: Service
+    port:
+      number: 9002
+---
+apiVersion: inference.networking.k8s.io/v1
+kind: InferencePool
+metadata:
+  name: decode-pool
+spec:
+  targetPorts:
+    - number: 8000
+  selector:
+    matchLabels:
+      app: vllm-decode
+  endpointPickerRef:
+    name: epp-decode
+    kind: Service
+    port:
+      number: 9002

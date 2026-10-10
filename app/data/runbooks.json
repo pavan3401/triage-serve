@@ -1,0 +1,423 @@
+[
+  {
+    "id": "RB-001",
+    "title": "CrashLoopBackOff — Image Pull Failure",
+    "category": "pod-lifecycle",
+    "symptoms": [
+      "CrashLoopBackOff",
+      "ImagePullBackOff",
+      "ErrImagePull",
+      "Failed to pull image",
+      "image not found",
+      "repository does not exist"
+    ],
+    "resource_types": ["Deployment", "StatefulSet", "DaemonSet", "Job"],
+    "remediation_steps": [
+      "Check the image name and tag in the pod spec — verify it exists in the registry",
+      "Run 'kubectl describe pod <pod>' and look at the Events section for pull errors",
+      "Verify image pull secrets are configured if using a private registry",
+      "Check if the image tag was recently changed (kubectl rollout history deployment/<name>)",
+      "Rollback to the previous working image: kubectl rollout undo deployment/<name>",
+      "If the image is correct, check network connectivity to the container registry"
+    ],
+    "escalation_criteria": "Escalate if the image tag was intentionally changed and the registry is confirmed accessible — may indicate a build/publish pipeline issue.",
+    "related_metrics": [
+      "kube_pod_container_status_waiting_reason{reason='ImagePullBackOff'}",
+      "kube_pod_container_status_waiting_reason{reason='ErrImagePull'}"
+    ]
+  },
+  {
+    "id": "RB-002",
+    "title": "CrashLoopBackOff — Application Error",
+    "category": "pod-lifecycle",
+    "symptoms": [
+      "CrashLoopBackOff",
+      "Error",
+      "exit code 1",
+      "exit code 137",
+      "application error",
+      "runtime error",
+      "panic",
+      "segfault"
+    ],
+    "resource_types": ["Deployment", "StatefulSet", "DaemonSet"],
+    "remediation_steps": [
+      "Check pod logs: kubectl logs <pod> --previous (for crashed containers)",
+      "Look for application startup errors, missing config, or dependency issues",
+      "Check if environment variables or ConfigMaps are correctly mounted",
+      "Verify volume mounts and secrets exist and are accessible",
+      "Check if there was a recent config change: kubectl rollout history",
+      "If config-related, fix the ConfigMap/Secret and redeploy",
+      "If code-related, rollback to previous version: kubectl rollout undo"
+    ],
+    "escalation_criteria": "Escalate if logs show an unknown error or if the same version was previously working — may indicate an environmental change.",
+    "related_metrics": [
+      "kube_pod_container_status_restarts_total",
+      "kube_pod_container_status_waiting_reason{reason='CrashLoopBackOff'}"
+    ]
+  },
+  {
+    "id": "RB-003",
+    "title": "OOMKilled — Container Memory Limit Exceeded",
+    "category": "resources",
+    "symptoms": [
+      "OOMKilled",
+      "OOMKill",
+      "exit code 137",
+      "memory limit exceeded",
+      "container killed",
+      "cgroup memory limit"
+    ],
+    "resource_types": ["Deployment", "StatefulSet", "DaemonSet", "Job"],
+    "remediation_steps": [
+      "Check the container's memory limits: kubectl describe pod <pod>",
+      "Query Prometheus for memory usage trends: container_memory_working_set_bytes",
+      "Determine if memory usage is growing over time (memory leak) or spiking",
+      "If memory leak: investigate application code, check for known memory leak issues",
+      "If legitimate load increase: increase memory limits in the deployment spec",
+      "As a quick fix, increase memory limits: kubectl patch deployment/<name> -p '{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"<container>\",\"resources\":{\"limits\":{\"memory\":\"256Mi\"}}}]}}}}'",
+      "Monitor after increase to verify stability"
+    ],
+    "escalation_criteria": "Escalate if memory usage grows linearly over time (memory leak pattern) — requires application-level fix.",
+    "related_metrics": [
+      "container_memory_working_set_bytes",
+      "container_memory_usage_bytes",
+      "kube_pod_container_resource_limits{resource='memory'}",
+      "kube_pod_container_status_last_terminated_reason{reason='OOMKilled'}"
+    ]
+  },
+  {
+    "id": "RB-004",
+    "title": "OOMKilled — JVM Heap Misconfiguration",
+    "category": "resources",
+    "symptoms": [
+      "OOMKilled",
+      "java.lang.OutOfMemoryError",
+      "heap space",
+      "GC overhead limit exceeded",
+      "JVM"
+    ],
+    "resource_types": ["Deployment", "StatefulSet"],
+    "remediation_steps": [
+      "Check if JVM heap size (-Xmx) is set appropriately relative to container memory limit",
+      "JVM heap should be ~75% of container memory limit (leave room for non-heap memory)",
+      "Check GC logs for excessive garbage collection",
+      "Update JAVA_OPTS or JVM_OPTS to set -Xmx appropriately",
+      "Increase container memory limit if the JVM genuinely needs more heap",
+      "Consider enabling -XX:+UseContainerSupport for JVM container awareness"
+    ],
+    "escalation_criteria": "Escalate if the JVM is configured correctly but still OOMing — may indicate a memory leak in the application.",
+    "related_metrics": [
+      "jvm_memory_used_bytes",
+      "jvm_gc_pause_seconds_sum",
+      "container_memory_working_set_bytes"
+    ]
+  },
+  {
+    "id": "RB-005",
+    "title": "Failed Rollout — Readiness Probe Failure",
+    "category": "deployment",
+    "symptoms": [
+      "rollout stalled",
+      "deployment stuck",
+      "Readiness probe failed",
+      "not ready",
+      "Unhealthy",
+      "0/1 Ready",
+      "deadline exceeded",
+      "ProgressDeadlineExceeded"
+    ],
+    "resource_types": ["Deployment"],
+    "remediation_steps": [
+      "Check deployment rollout status: kubectl rollout status deployment/<name>",
+      "Describe the new pods to see readiness probe failures in events",
+      "Verify the readiness probe path and port match the application's health endpoint",
+      "Check if the new image actually serves on the expected port",
+      "Check for startup time issues — increase initialDelaySeconds if the app takes longer to start",
+      "Rollback to the previous version: kubectl rollout undo deployment/<name>",
+      "Fix the readiness probe configuration and redeploy"
+    ],
+    "escalation_criteria": "Escalate if the probe config is correct but pods still fail readiness — may indicate an application startup issue.",
+    "related_metrics": [
+      "kube_deployment_status_observed_generation",
+      "kube_deployment_status_replicas_available",
+      "kube_deployment_status_replicas_unavailable"
+    ]
+  },
+  {
+    "id": "RB-006",
+    "title": "Failed Rollout — Missing ConfigMap or Secret",
+    "category": "deployment",
+    "symptoms": [
+      "CreateContainerConfigError",
+      "configmap not found",
+      "secret not found",
+      "MountVolume.SetUp failed",
+      "references non-existent configmap",
+      "references non-existent secret"
+    ],
+    "resource_types": ["Deployment", "StatefulSet", "DaemonSet"],
+    "remediation_steps": [
+      "Check events for specific ConfigMap/Secret name that is missing",
+      "Verify the ConfigMap/Secret exists in the correct namespace: kubectl get configmap -n <ns>",
+      "If it was deleted accidentally, recreate it from source or backup",
+      "If it was renamed, update the deployment spec to reference the new name",
+      "Rollback if the ConfigMap/Secret change was part of the failed deployment"
+    ],
+    "escalation_criteria": "Escalate if the ConfigMap/Secret was deleted by an automated process or pipeline.",
+    "related_metrics": [
+      "kube_pod_container_status_waiting_reason{reason='CreateContainerConfigError'}"
+    ]
+  },
+  {
+    "id": "RB-007",
+    "title": "Failed Rollout — Resource Quota Exceeded",
+    "category": "deployment",
+    "symptoms": [
+      "exceeded quota",
+      "forbidden: exceeded quota",
+      "insufficient cpu",
+      "insufficient memory",
+      "ResourceQuota",
+      "FailedCreate"
+    ],
+    "resource_types": ["Deployment", "StatefulSet", "ReplicaSet"],
+    "remediation_steps": [
+      "Check resource quota status: kubectl describe resourcequota -n <namespace>",
+      "Compare requested resources with quota limits",
+      "Option 1: Reduce resource requests in the deployment spec",
+      "Option 2: Request a quota increase for the namespace",
+      "Option 3: Scale down other deployments in the namespace to free resources",
+      "Rollback the deployment while waiting for quota adjustment"
+    ],
+    "escalation_criteria": "Escalate if quota increase requires platform team approval.",
+    "related_metrics": [
+      "kube_resourcequota",
+      "kube_pod_container_resource_requests"
+    ]
+  },
+  {
+    "id": "RB-008",
+    "title": "Pods Pending — Insufficient Node Resources",
+    "category": "scheduling",
+    "symptoms": [
+      "Pending",
+      "Unschedulable",
+      "Insufficient cpu",
+      "Insufficient memory",
+      "FailedScheduling",
+      "0/N nodes are available"
+    ],
+    "resource_types": ["Deployment", "StatefulSet", "DaemonSet", "Job"],
+    "remediation_steps": [
+      "Check which resources are insufficient: kubectl describe pod <pod> (look at Events)",
+      "Check node resource usage: kubectl top nodes",
+      "Check if any nodes are cordoned or have taints: kubectl get nodes -o wide",
+      "Option 1: Reduce resource requests in the pod spec",
+      "Option 2: Scale up the cluster (add more nodes)",
+      "Option 3: Evict or scale down lower-priority workloads",
+      "Check for node affinity or anti-affinity rules that may be too restrictive"
+    ],
+    "escalation_criteria": "Escalate if cluster autoscaler is not responding or if all nodes are at capacity.",
+    "related_metrics": [
+      "kube_node_status_allocatable",
+      "kube_pod_status_phase{phase='Pending'}",
+      "kube_node_status_condition{condition='Ready',status='true'}"
+    ]
+  },
+  {
+    "id": "RB-009",
+    "title": "Pods Pending — PersistentVolumeClaim Issues",
+    "category": "storage",
+    "symptoms": [
+      "Pending",
+      "persistentvolumeclaim",
+      "PVC",
+      "unbound",
+      "FailedMount",
+      "AttachVolume.Attach failed",
+      "waiting for a volume to be created"
+    ],
+    "resource_types": ["StatefulSet", "Deployment"],
+    "remediation_steps": [
+      "Check PVC status: kubectl get pvc -n <namespace>",
+      "If PVC is Pending, check if a matching PV exists or if dynamic provisioning is configured",
+      "Check the StorageClass: kubectl get storageclass",
+      "Verify the CSI driver is running: kubectl get pods -n kube-system | grep csi",
+      "Check cloud provider quota for disk volumes",
+      "If using a specific PV, check if it is Available and has matching capacity/access mode"
+    ],
+    "escalation_criteria": "Escalate if the storage backend is experiencing issues or if cloud provider quota is exhausted.",
+    "related_metrics": [
+      "kube_persistentvolumeclaim_status_phase",
+      "kubelet_volume_stats_available_bytes"
+    ]
+  },
+  {
+    "id": "RB-010",
+    "title": "Service Connectivity Issues — DNS Resolution Failure",
+    "category": "networking",
+    "symptoms": [
+      "dial tcp: lookup",
+      "could not resolve host",
+      "DNS resolution failed",
+      "nslookup failed",
+      "NXDOMAIN",
+      "connection refused"
+    ],
+    "resource_types": ["Service", "Deployment", "Pod"],
+    "remediation_steps": [
+      "Check CoreDNS pods are running: kubectl get pods -n kube-system -l k8s-app=kube-dns",
+      "Test DNS resolution from a pod: kubectl exec <pod> -- nslookup <service>.<namespace>.svc.cluster.local",
+      "Check CoreDNS logs for errors: kubectl logs -n kube-system -l k8s-app=kube-dns",
+      "Verify the Service exists and has endpoints: kubectl get endpoints <service> -n <namespace>",
+      "Check if the Service selector matches the pod labels",
+      "Restart CoreDNS if it is unresponsive: kubectl rollout restart deployment/coredns -n kube-system"
+    ],
+    "escalation_criteria": "Escalate if CoreDNS is crashlooping or if cluster-wide DNS is broken.",
+    "related_metrics": [
+      "coredns_dns_responses_total",
+      "coredns_dns_request_duration_seconds"
+    ]
+  },
+  {
+    "id": "RB-011",
+    "title": "High Pod Restart Count",
+    "category": "pod-lifecycle",
+    "symptoms": [
+      "high restart count",
+      "restart count",
+      "restarts",
+      "BackOff",
+      "container restarting",
+      "frequent restarts"
+    ],
+    "resource_types": ["Deployment", "StatefulSet", "DaemonSet"],
+    "remediation_steps": [
+      "Check restart count: kubectl get pods -n <namespace>",
+      "Check previous container logs: kubectl logs <pod> --previous",
+      "Check pod events: kubectl describe pod <pod>",
+      "Determine if restarts are caused by: OOMKill, liveness probe failure, application crash, or exit code",
+      "Check liveness probe configuration — it may be too aggressive",
+      "If OOMKill: see runbook RB-003",
+      "If application crash: see runbook RB-002"
+    ],
+    "escalation_criteria": "Escalate if restart count exceeds 50 in the past hour or if restarts are accelerating.",
+    "related_metrics": [
+      "kube_pod_container_status_restarts_total",
+      "kube_pod_container_status_last_terminated_reason"
+    ]
+  },
+  {
+    "id": "RB-012",
+    "title": "High Latency / Slow Responses",
+    "category": "performance",
+    "symptoms": [
+      "high latency",
+      "slow response",
+      "timeout",
+      "deadline exceeded",
+      "504 gateway timeout",
+      "request timeout",
+      "p99 latency"
+    ],
+    "resource_types": ["Deployment", "Service", "Ingress"],
+    "remediation_steps": [
+      "Check current CPU and memory utilization: kubectl top pods -n <namespace>",
+      "Query Prometheus for request latency: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))",
+      "Check if pods are CPU throttled: container_cpu_cfs_throttled_seconds_total",
+      "Check HPA status: kubectl get hpa -n <namespace> — may need to scale out",
+      "Check for upstream dependency issues (databases, external APIs)",
+      "If CPU throttled: increase CPU limits or add more replicas",
+      "If memory pressure: check for GC pauses (JVM) or memory swap"
+    ],
+    "escalation_criteria": "Escalate if latency affects SLO/SLA thresholds or if the root cause is an upstream dependency.",
+    "related_metrics": [
+      "http_request_duration_seconds_bucket",
+      "container_cpu_cfs_throttled_seconds_total",
+      "container_cpu_usage_seconds_total"
+    ]
+  },
+  {
+    "id": "RB-013",
+    "title": "Node Not Ready",
+    "category": "infrastructure",
+    "symptoms": [
+      "NodeNotReady",
+      "NotReady",
+      "node condition",
+      "kubelet stopped",
+      "node unreachable",
+      "Taint node.kubernetes.io/not-ready"
+    ],
+    "resource_types": ["Node"],
+    "remediation_steps": [
+      "Check node status: kubectl get nodes -o wide",
+      "Describe the NotReady node: kubectl describe node <node>",
+      "Check kubelet status on the node (if accessible): systemctl status kubelet",
+      "Check for disk pressure, memory pressure, or PID pressure conditions",
+      "Check cloud provider console for instance health",
+      "If the node is truly unrecoverable, drain it: kubectl drain <node> --ignore-daemonsets --delete-emptydir-data",
+      "Replace the node via cluster autoscaler or manually"
+    ],
+    "escalation_criteria": "Escalate if multiple nodes are NotReady simultaneously — may indicate a control plane or networking issue.",
+    "related_metrics": [
+      "kube_node_status_condition{condition='Ready'}",
+      "kube_node_status_condition{condition='DiskPressure'}",
+      "kube_node_status_condition{condition='MemoryPressure'}"
+    ]
+  },
+  {
+    "id": "RB-014",
+    "title": "CrashLoopBackOff — Readiness/Liveness Probe Misconfiguration",
+    "category": "pod-lifecycle",
+    "symptoms": [
+      "CrashLoopBackOff",
+      "Liveness probe failed",
+      "Readiness probe failed",
+      "Back-off restarting failed container",
+      "container was killed"
+    ],
+    "resource_types": ["Deployment", "StatefulSet"],
+    "remediation_steps": [
+      "Check probe configuration: kubectl describe pod <pod>",
+      "Verify the probe endpoint is correct (path, port, scheme)",
+      "Check if the application needs more time to start — increase initialDelaySeconds",
+      "Check if the probe timeoutSeconds is too short for the application",
+      "Test the probe endpoint manually: kubectl exec <pod> -- curl -s localhost:<port>/<path>",
+      "Consider adding a startupProbe for slow-starting applications",
+      "Temporarily remove the probe to verify the application is running correctly"
+    ],
+    "escalation_criteria": "Escalate if the probe config matches the application's actual health endpoint — may indicate an application health issue.",
+    "related_metrics": [
+      "kube_pod_container_status_restarts_total",
+      "kube_pod_container_status_waiting_reason"
+    ]
+  },
+  {
+    "id": "RB-015",
+    "title": "Deployment Scaled to Zero Replicas",
+    "category": "deployment",
+    "symptoms": [
+      "0 replicas",
+      "scaled to 0",
+      "no pods running",
+      "service unavailable",
+      "no endpoints"
+    ],
+    "resource_types": ["Deployment", "StatefulSet"],
+    "remediation_steps": [
+      "Check current replica count: kubectl get deployment <name> -n <namespace>",
+      "Check HPA if present: kubectl get hpa -n <namespace>",
+      "Check if the scale-down was intentional (maintenance, cost saving)",
+      "Scale back up: kubectl scale deployment/<name> --replicas=<desired> -n <namespace>",
+      "Check HPA minReplicas if HPA is managing the deployment",
+      "Review recent events for manual or automated scale-down actions"
+    ],
+    "escalation_criteria": "Escalate if the scale-down was not intentional and affects a production service.",
+    "related_metrics": [
+      "kube_deployment_spec_replicas",
+      "kube_deployment_status_replicas_available"
+    ]
+  }
+]

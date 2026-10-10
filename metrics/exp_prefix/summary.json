@@ -1,0 +1,48 @@
+[
+  {
+    "arm": "shared",
+    "concurrency": 40,
+    "prompt_chars": 7900,
+    "wall_s": 40.8,
+    "ok": 1225,
+    "status_codes": {
+      "200": 1225
+    },
+    "latency_p50_s": 1.3111193180084229,
+    "latency_p95_s": 1.5758600234985352,
+    "gw_shed_delta": 0.0,
+    "shed_by_reason_end": {
+      "no_eligible_pod": 0.0
+    },
+    "preemptions_delta": 0.0,
+    "gen_tokens_per_s": 803.0,
+    "prefix_hit_rate": 0.99,
+    "kv_usage_peak": 0.04362085929813053,
+    "running_peak": 15.0,
+    "waiting_peak": 0.0
+  },
+  {
+    "arm": "unique",
+    "concurrency": 40,
+    "prompt_chars": 7900,
+    "wall_s": 41.2,
+    "ok": 594,
+    "status_codes": {
+      "200": 594,
+      "503": 112
+    },
+    "latency_p50_s": 2.406280994415283,
+    "latency_p95_s": 3.4509732723236084,
+    "gw_shed_delta": 112.0,
+    "shed_by_reason_end": {
+      "kv_free": 110.0,
+      "no_eligible_pod": 2.0
+    },
+    "preemptions_delta": 26.0,
+    "gen_tokens_per_s": 941.4,
+    "prefix_hit_rate": 0.1,
+    "kv_usage_peak": 0.9927845195145949,
+    "running_peak": 33.0,
+    "waiting_peak": 19.0
+  }
+]

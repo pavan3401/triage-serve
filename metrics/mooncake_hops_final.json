@@ -1,0 +1,1 @@
+{"hops": [{"src": "text-0", "dst": "vision-0", "req_id": "7ccad608-b0a9-4d1d-9b84-b51ea4c63977", "tokens": 16, "backend": "mooncake", "prefix": "05e541972fcc9ed8"}, {"src": "text-0", "dst": "vision-0", "req_id": "77511654-dc1e-40e3-ab00-65aadc74da83", "tokens": 16, "backend": "mooncake", "prefix": "05e541972fcc9ed8"}], "blocks": 2}

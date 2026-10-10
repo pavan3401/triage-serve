@@ -1,0 +1,44 @@
+[
+  {
+    "concurrency": 64,
+    "wall_s": 64.7,
+    "steps_ok": 1887,
+    "incidents_done": 629,
+    "incidents_errored": 1,
+    "step_latency_p50_s": 1.946,
+    "step_latency_p95_s": 2.87,
+    "step_latency_p99_s": 3.368,
+    "error_kinds": {
+      "gateway 400: {\"error\": {\"type\": \"prompt_": 1
+    },
+    "gw_requests_delta": 1835.0,
+    "gw_shed_delta": 0.0,
+    "preemptions_delta": 0.0,
+    "gen_tokens_per_s": 1370.2,
+    "prefix_hit_rate": 0.859,
+    "kv_usage_peak": 0.3709412922269597,
+    "kv_usage_mean": 0.124,
+    "running_peak": 39.0,
+    "waiting_peak": 0.0
+  },
+  {
+    "concurrency": 128,
+    "wall_s": 67.4,
+    "steps_ok": 1922,
+    "incidents_done": 641,
+    "incidents_errored": 0,
+    "step_latency_p50_s": 4.064,
+    "step_latency_p95_s": 5.136,
+    "step_latency_p99_s": 5.78,
+    "error_kinds": {},
+    "gw_requests_delta": 1794.0,
+    "gw_shed_delta": 0.0,
+    "preemptions_delta": 0.0,
+    "gen_tokens_per_s": 1365.3,
+    "prefix_hit_rate": 0.832,
+    "kv_usage_peak": 0.3738930796982617,
+    "kv_usage_mean": 0.132,
+    "running_peak": 36.0,
+    "waiting_peak": 0.0
+  }
+]

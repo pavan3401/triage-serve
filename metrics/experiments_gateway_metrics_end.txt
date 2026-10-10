@@ -1,0 +1,133 @@
+# TYPE orch_requests_total counter
+orch_requests_total 1932
+# TYPE orch_shed_total counter
+orch_shed_total{reason="kv_free",code="503"} 110
+orch_shed_total{reason="no_eligible_pod",code="503"} 2
+# TYPE orch_pick_total counter
+orch_pick_total 1820
+# TYPE orch_pick_unknown_snapshot_total counter
+orch_pick_unknown_snapshot_total 0
+# TYPE orch_sticky_total counter
+orch_sticky_total 0
+# TYPE orch_tokens_in_flight gauge
+orch_tokens_in_flight{phase="prefill"} 0
+orch_tokens_in_flight{phase="decode"} 0
+# TYPE orch_kv_free_ratio gauge
+orch_kv_free_ratio 1.0
+# TYPE orch_planner_desired_replicas gauge
+orch_planner_desired_replicas{pool="prefill"} 0
+orch_planner_desired_replicas{pool="decode"} 0
+# TYPE orch_overflow_total counter
+orch_overflow_total 0
+# TYPE orch_completed_total counter
+orch_completed_total 1819
+# TYPE orch_engine_rejected_total counter
+orch_engine_rejected_total{code="400"} 1
+# TYPE orch_kv_transfer_total counter
+orch_kv_transfer_total 0
+# TYPE orch_kv_transfer_tokens counter
+orch_kv_transfer_tokens 0
+# TYPE orch_kv_evict_total counter
+orch_kv_evict_total 0
+# TYPE orch_place_total counter
+orch_place_total{capability="text"} 1819
+# TYPE orch_request_duration_seconds histogram
+orch_request_duration_seconds_bucket{stage="gateway",le="0.005"} 0
+orch_request_duration_seconds_bucket{stage="gateway",le="0.01"} 0
+orch_request_duration_seconds_bucket{stage="gateway",le="0.025"} 93
+orch_request_duration_seconds_bucket{stage="gateway",le="0.05"} 109
+orch_request_duration_seconds_bucket{stage="gateway",le="0.1"} 113
+orch_request_duration_seconds_bucket{stage="gateway",le="0.25"} 113
+orch_request_duration_seconds_bucket{stage="gateway",le="0.5"} 122
+orch_request_duration_seconds_bucket{stage="gateway",le="1.0"} 175
+orch_request_duration_seconds_bucket{stage="gateway",le="2.5"} 1772
+orch_request_duration_seconds_bucket{stage="gateway",le="5.0"} 1932
+orch_request_duration_seconds_bucket{stage="gateway",le="10.0"} 1932
+orch_request_duration_seconds_bucket{stage="gateway",le="30.0"} 1932
+orch_request_duration_seconds_bucket{stage="gateway",le="+Inf"} 1932
+orch_request_duration_seconds_sum{stage="gateway"} 2954.7681555189797
+orch_request_duration_seconds_count{stage="gateway"} 1932
+orch_request_duration_seconds_bucket{stage="pick",le="0.005"} 0
+orch_request_duration_seconds_bucket{stage="pick",le="0.01"} 52
+orch_request_duration_seconds_bucket{stage="pick",le="0.025"} 83
+orch_request_duration_seconds_bucket{stage="pick",le="0.05"} 125
+orch_request_duration_seconds_bucket{stage="pick",le="0.1"} 230
+orch_request_duration_seconds_bucket{stage="pick",le="0.25"} 1211
+orch_request_duration_seconds_bucket{stage="pick",le="0.5"} 1829
+orch_request_duration_seconds_bucket{stage="pick",le="1.0"} 1830
+orch_request_duration_seconds_bucket{stage="pick",le="2.5"} 1830
+orch_request_duration_seconds_bucket{stage="pick",le="5.0"} 1830
+orch_request_duration_seconds_bucket{stage="pick",le="10.0"} 1830
+orch_request_duration_seconds_bucket{stage="pick",le="30.0"} 1830
+orch_request_duration_seconds_bucket{stage="pick",le="+Inf"} 1830
+orch_request_duration_seconds_sum{stage="pick"} 386.16209337898636
+orch_request_duration_seconds_count{stage="pick"} 1830
+orch_request_duration_seconds_bucket{stage="local",le="0.005"} 0
+orch_request_duration_seconds_bucket{stage="local",le="0.01"} 0
+orch_request_duration_seconds_bucket{stage="local",le="0.025"} 93
+orch_request_duration_seconds_bucket{stage="local",le="0.05"} 109
+orch_request_duration_seconds_bucket{stage="local",le="0.1"} 113
+orch_request_duration_seconds_bucket{stage="local",le="0.25"} 113
+orch_request_duration_seconds_bucket{stage="local",le="0.5"} 122
+orch_request_duration_seconds_bucket{stage="local",le="1.0"} 175
+orch_request_duration_seconds_bucket{stage="local",le="2.5"} 1772
+orch_request_duration_seconds_bucket{stage="local",le="5.0"} 1932
+orch_request_duration_seconds_bucket{stage="local",le="10.0"} 1932
+orch_request_duration_seconds_bucket{stage="local",le="30.0"} 1932
+orch_request_duration_seconds_bucket{stage="local",le="+Inf"} 1932
+orch_request_duration_seconds_sum{stage="local"} 2954.7975848889896
+orch_request_duration_seconds_count{stage="local"} 1932
+orch_request_duration_seconds_bucket{stage="overflow",le="0.005"} 0
+orch_request_duration_seconds_bucket{stage="overflow",le="0.01"} 0
+orch_request_duration_seconds_bucket{stage="overflow",le="0.025"} 0
+orch_request_duration_seconds_bucket{stage="overflow",le="0.05"} 0
+orch_request_duration_seconds_bucket{stage="overflow",le="0.1"} 0
+orch_request_duration_seconds_bucket{stage="overflow",le="0.25"} 0
+orch_request_duration_seconds_bucket{stage="overflow",le="0.5"} 0
+orch_request_duration_seconds_bucket{stage="overflow",le="1.0"} 0
+orch_request_duration_seconds_bucket{stage="overflow",le="2.5"} 0
+orch_request_duration_seconds_bucket{stage="overflow",le="5.0"} 0
+orch_request_duration_seconds_bucket{stage="overflow",le="10.0"} 0
+orch_request_duration_seconds_bucket{stage="overflow",le="30.0"} 0
+orch_request_duration_seconds_bucket{stage="overflow",le="+Inf"} 0
+orch_request_duration_seconds_sum{stage="overflow"} 0.0
+orch_request_duration_seconds_count{stage="overflow"} 0
+orch_request_duration_seconds_bucket{stage="e2e",le="0.005"} 0
+orch_request_duration_seconds_bucket{stage="e2e",le="0.01"} 0
+orch_request_duration_seconds_bucket{stage="e2e",le="0.025"} 93
+orch_request_duration_seconds_bucket{stage="e2e",le="0.05"} 109
+orch_request_duration_seconds_bucket{stage="e2e",le="0.1"} 113
+orch_request_duration_seconds_bucket{stage="e2e",le="0.25"} 113
+orch_request_duration_seconds_bucket{stage="e2e",le="0.5"} 122
+orch_request_duration_seconds_bucket{stage="e2e",le="1.0"} 175
+orch_request_duration_seconds_bucket{stage="e2e",le="2.5"} 1772
+orch_request_duration_seconds_bucket{stage="e2e",le="5.0"} 1932
+orch_request_duration_seconds_bucket{stage="e2e",le="10.0"} 1932
+orch_request_duration_seconds_bucket{stage="e2e",le="30.0"} 1932
+orch_request_duration_seconds_bucket{stage="e2e",le="+Inf"} 1932
+orch_request_duration_seconds_sum{stage="e2e"} 2954.7975848889896
+orch_request_duration_seconds_count{stage="e2e"} 1932
+# TYPE orch_replica_healthy gauge
+# TYPE orch_replica_saturating gauge
+# TYPE orch_replica_kv_free_ratio gauge
+# TYPE orch_replica_tokens_in_flight gauge
+# TYPE orch_replica_waiting gauge
+# TYPE orch_replica_running gauge
+# TYPE orch_replica_queue_depth gauge
+# TYPE orch_replica_active_requests gauge
+orch_replica_healthy{pool="prefill",pod="text-0"} 1
+orch_replica_saturating{pool="prefill",pod="text-0"} 0
+orch_replica_kv_free_ratio{pool="prefill",pod="text-0"} 1.0
+orch_replica_tokens_in_flight{pool="prefill",pod="text-0"} 0
+orch_replica_waiting{pool="prefill",pod="text-0"} 0
+orch_replica_running{pool="prefill",pod="text-0"} 0
+orch_replica_queue_depth{pool="prefill",pod="text-0"} 0
+orch_replica_active_requests{pool="prefill",pod="text-0"} 0
+orch_replica_healthy{pool="decode",pod="vision-0"} 1
+orch_replica_saturating{pool="decode",pod="vision-0"} 0
+orch_replica_kv_free_ratio{pool="decode",pod="vision-0"} 1.0
+orch_replica_tokens_in_flight{pool="decode",pod="vision-0"} 0
+orch_replica_waiting{pool="decode",pod="vision-0"} 0
+orch_replica_running{pool="decode",pod="vision-0"} 0
+orch_replica_queue_depth{pool="decode",pod="vision-0"} 0
+orch_replica_active_requests{pool="decode",pod="vision-0"} 0

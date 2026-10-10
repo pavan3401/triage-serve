@@ -1,0 +1,6 @@
+vllm:kv_cache_usage_perc{engine="0",model_name="Qwen/Qwen2.5-3B-Instruct"} 0.0
+vllm:prefix_cache_queries_total{engine="0",model_name="Qwen/Qwen2.5-3B-Instruct"} 7.646831e+06
+vllm:prefix_cache_hits_total{engine="0",model_name="Qwen/Qwen2.5-3B-Instruct"} 5.451776e+06
+vllm:num_preemptions_total{engine="0",model_name="Qwen/Qwen2.5-3B-Instruct"} 26.0
+vllm:prompt_tokens_total{engine="0",model_name="Qwen/Qwen2.5-3B-Instruct"} 6.765685e+06
+vllm:generation_tokens_total{engine="0",model_name="Qwen/Qwen2.5-3B-Instruct"} 275685.0
